@@ -31,10 +31,10 @@ Invoke-Command -ScriptBlock {
 #General Housekeeping items.
 Invoke-Command -ScriptBlock {
     Set-ExecutionPolicy -Scope Process -ExecutionPolicy 'Unrestricted' -Force
-    IF ($Navi.Debug) {Write-Host -Object $Navi.infoSparkRoot -ForegroundColor Magenta}
-    IF ($Navi.Debug) {Write-Host -Object $PSScriptRoot -ForegroundColor Magenta}
-    IF ($Navi.Debug) {Write-Host -Object $($Navi.FredTools) -ForegroundColor Magenta}
-    IF ($Navi.Debug) {PAUSE}
+    #IF ($Navi.Debug) {Write-Host -Object $Navi.infoSparkRoot -ForegroundColor Magenta}
+    #IF ($Navi.Debug) {Write-Host -Object $PSScriptRoot -ForegroundColor Magenta}
+    #IF ($Navi.Debug) {Write-Host -Object $($Navi.FredTools) -ForegroundColor Magenta}
+    #IF ($Navi.Debug) {PAUSE}
 }
 
 
