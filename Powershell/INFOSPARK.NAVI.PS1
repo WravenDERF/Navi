@@ -1,143 +1,170 @@
-<#
- .Synopsis
-  Displays a visual representation of a calendar.
+$Navi = [PSCustomObject]@{
+    'Vendor' = 'infoSpark'
+    'Name' = 'Navi'
+    'Version' = 'Beta 2021.10.11'
+    'Debug' = $true
+    'RegistryPath' = 'HKCU:\Software\infoSpark'
+    'infoSparkRoot' = $PSScriptRoot.Replace("\PowerShell","")
+    'MenuArray' = New-Object System.Collections.ArrayList
+    'FredTools' = $PSScriptRoot.Replace("\PowerShell","") + "\FredTestTools.zip"
+    'WindowWidth' = 150
+    'WindowHeight' = 50
+}
 
- .Description
-  Displays a visual representation of a calendar. This function supports multiple months
-  and lets you highlight specific date ranges or days.
 
- .Parameter Start
-  The first month to display.
+#Resize the window. these are arbitrary dimentions.
+IF ($Navi.Debug) {Write-Host -Object $('Current Window Size...') -ForegroundColor Magenta}
+IF ($Navi.Debug) {$host.UI.RawUI.WindowSize.width}
+IF ($Navi.Debug) {$host.UI.RawUI.WindowSize.height}
+IF ($Navi.Debug) {PAUSE}
+IF ($Navi.Debug) {Write-Host -Object $('Resizing Window...') -ForegroundColor Magenta}
+$host.UI.RawUI.BufferSize = New-Object System.Management.Automation.Host.size($Navi.WindowWidth, 5000)
+$host.UI.RawUI.WindowSize = New-Object System.Management.Automation.Host.size($Navi.WindowWidth, $Navi.WindowHeight)
+IF ($Navi.Debug) {$host.UI.RawUI.WindowSize.width}
+IF ($Navi.Debug) {$host.UI.RawUI.WindowSize.height}
+IF ($Navi.Debug) {PAUSE}
 
- .Parameter End
-  The last month to display.
 
- .Parameter FirstDayOfWeek
-  The day of the month on which the week begins.
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy 'Unrestricted' -Force
+IF ($Navi.Debug) {Write-Host -Object $Navi.infoSparkRoot -ForegroundColor Magenta}
+IF ($Navi.Debug) {Write-Host -Object $PSScriptRoot -ForegroundColor Magenta}
+IF ($Navi.Debug) {Write-Host -Object $($Navi.FredTools) -ForegroundColor Magenta}
+IF ($Navi.Debug) {PAUSE}
 
- .Parameter HighlightDay
-  Specific days (numbered) to highlight. Used for date ranges like (25..31).
-  Date ranges are specified by the Windows PowerShell range syntax. These dates are
-  enclosed in square brackets.
 
- .Parameter HighlightDate
-  Specific days (named) to highlight. These dates are surrounded by asterisks.
+#Interface telling the user the modules are loading.
+IF ($Navi.Debug) {Write-Host -Object $('Starting the loading of other modules...') -ForegroundColor Cyan}
 
- .Example
-   # Show a default display of this month.
-   Show-Calendar
 
- .Example
-   # Display a date range.
-   Show-Calendar -Start "March, 2010" -End "May, 2010"
+#Import SQL Module
+IF (Test-Path “HKLM:\Software\Microsoft\Microsoft SQL Server\Instance Names\SQL”) {
+    Import-Module SQLPS
+    IF ($Navi.Debug) {Write-Host -Object 'Loaded SQL...' -ForegroundColor Green}
+} ELSE {
+    IF ($Navi.Debug) {Write-Host -Object 'Could not load SQL...' -ForegroundColor Red}
+}
 
- .Example
-   # Highlight a range of days.
-   Show-Calendar -HighlightDay (1..10 + 22) -HighlightDate "December 25, 2008"
-#>
-function Show-Calendar {
-param(
-    [DateTime] $start = [DateTime]::Today,
-    [DateTime] $end = $start,
-    $firstDayOfWeek,
-    [int[]] $highlightDay,
-    [string[]] $highlightDate = [DateTime]::Today.ToString()
+
+#Load the XML
+IF (Test-Path -Path "$($Navi.infoSparkRoot)\XML\INFOSPARK.XML") {
+    [xml]$RootXML = Get-Content -Path "$($Navi.infoSparkRoot)\XML\INFOSPARK.XML"
+    IF ($Navi.Debug) {Write-Host -Object 'Loaded XML...' -ForegroundColor Green}
+} ELSE {
+    Write-Host -Object "Could not fild XML File." -ForegroundColor Red
+    Invoke-Command -ScriptBlock {PAUSE}
+}
+
+
+#Import tools module
+IF (Test-Path "$PSScriptRoot\INFOSPARK.TOOLS.PS1") {
+    Import-Module -Name "$PSScriptRoot\INFOSPARK.TOOLS.PS1"
+    IF ($Navi.Debug) {Write-Host -Object 'Loaded Tools...' -ForegroundColor Green}
+} ELSE {
+    Write-Host -Object "Could not load module INFOSPARK.TOOLS.PS1" -ForegroundColor Red
+    Invoke-Command -ScriptBlock {PAUSE}
+}
+
+
+#Import Application module
+IF (Test-Path "$PSScriptRoot\INFOSPARK.APPLICATIONS.PS1") {
+    Import-Module -Name "$PSScriptRoot\INFOSPARK.APPLICATIONS.PS1"
+    IF ($Navi.Debug) {Write-Host -Object 'Loaded Applications...' -ForegroundColor Green}
+} ELSE {
+    Write-Host -Object "Could not load module INFOSPARK.APPLICATIONS.PS1" -ForegroundColor Red
+    Invoke-Command -ScriptBlock {PAUSE}
+}
+
+
+#Import Acuo module
+IF (Test-Path "$PSScriptRoot\INFOSPARK.ACUO.PS1") {
+    Import-Module -Name "$PSScriptRoot\INFOSPARK.ACUO.PS1"
+    IF ($Navi.Debug) {Write-Host -Object 'Loaded Acuo...' -ForegroundColor Green}
+} ELSE {
+    Write-Host -Object "Could not load module INFOSPARK.ACUO.PS1" -ForegroundColor Red
+    Invoke-Command -ScriptBlock {PAUSE}
+}
+
+
+#Import SyngoDynamics module
+IF (Test-Path "$PSScriptRoot\INFOSPARK.SYNGODYNAMICS.PS1") {
+    Import-Module -Name "$PSScriptRoot\INFOSPARK.SYNGODYNAMICS.PS1"
+    IF ($Navi.Debug) {Write-Host -Object 'Loaded SyngoDynamics...' -ForegroundColor Green}
+} ELSE {
+    Write-Host -Object "Could not load module INFOSPARK.SYNGODYNAMICS.PS1" -ForegroundColor Red
+    Invoke-Command -ScriptBlock {PAUSE}
+}
+
+
+#Import maintenance module
+IF (Test-Path "$PSScriptRoot\INFOSPARK.MAINTENANCE.PS1") {
+    Import-Module -Name "$PSScriptRoot\INFOSPARK.MAINTENANCE.PS1"
+    IF ($Navi.Debug) {Write-Host -Object 'Loaded Maintenance...' -ForegroundColor Green}
+} ELSE {
+    Write-Host -Object "Could not load module INFOSPARK.MAINTENANCE.PS1" -ForegroundColor Red
+    Invoke-Command -ScriptBlock {PAUSE}
+}
+
+
+#Import maintenance module
+IF (Test-Path "$PSScriptRoot\INFOSPARK.APPLICATIONS.FUJI-SYNAPSE.PS1") {
+    Import-Module -Name "$PSScriptRoot\INFOSPARK.APPLICATIONS.FUJI-SYNAPSE.PS1"
+    IF ($Navi.Debug) {Write-Host -Object 'Loaded Maintenance...' -ForegroundColor Green}
+} ELSE {
+    Write-Host -Object "Could not load module INFOSPARK.APPLICATIONS.FUJI-SYNAPSE.PS1" -ForegroundColor Red
+    Invoke-Command -ScriptBlock {PAUSE}
+}
+
+
+Add-Member -InputObject $Navi -MemberType 'ScriptMethod' -Name 'ReturnFormattedTitle' -Force -Value {
+
+    PARAM (
+        [Parameter()][string]$Text
     )
 
-## Determine the first day of the start and end months.
-$start = New-Object DateTime $start.Year,$start.Month,1
-$end = New-Object DateTime $end.Year,$end.Month,1
-
-## Convert the highlighted dates into real dates.
-[DateTime[]] $highlightDate = [DateTime[]] $highlightDate
-
-## Retrieve the DateTimeFormat information so that the
-## calendar can be manipulated.
-$dateTimeFormat  = (Get-Culture).DateTimeFormat
-if($firstDayOfWeek)
-{
-    $dateTimeFormat.FirstDayOfWeek = $firstDayOfWeek
+    [string]$Title = "=" + [char]32 + $Text  + [char]32 + "=" * $Navi.WindowWidth
+    RETURN $($Title.substring(0, [System.Math]::Min($Navi.WindowWidth, $Title.Length)))
 }
 
-$currentDay = $start
 
-## Process the requested months.
-while($start -le $end)
-{
-    ## Return to an earlier point in the function if the first day of the month
-    ## is in the middle of the week.
-    while($currentDay.DayOfWeek -ne $dateTimeFormat.FirstDayOfWeek)
-    {
-        $currentDay = $currentDay.AddDays(-1)
+Add-Member -InputObject $Navi -MemberType 'ScriptMethod' -Name 'ReturnMenuBreak' -Force -Value {
+
+    #Return formatted menu breaks.
+    [string]$Break = "=" * $Navi.WindowWidth
+    RETURN $Break
+}
+
+#Display the main menu.
+IF ($Navi.Debug) {PAUSE}
+DO {
+
+
+    #Write the main titlebar.
+    Clear-Host
+    Write-Host -Object $Navi.ReturnMenuBreak() -ForegroundColor Cyan
+    Write-Host -Object $Navi.ReturnFormattedTitle('Navi - Main') -ForegroundColor Cyan
+    Write-Host -Object $Navi.ReturnMenuBreak() -ForegroundColor Cyan
+    Write-Host -Object "  0 : Quit"
+    Write-Host -Object $Navi.ReturnMenuBreak() -ForegroundColor Cyan
+    Write-Host -Object "  1 : Tools"
+    Write-Host -Object "  2 : Applications"
+    Write-Host -Object "  3 : Builds"
+    Write-Host -Object "  4 : Maintenance"
+    Write-Host -Object $Navi.ReturnMenuBreak() -ForegroundColor Cyan
+    Write-Host -Object "  5 : Acuo"
+    Write-Host -Object "  6 : Syngo Dynamics"
+    Write-Host -Object $Navi.ReturnMenuBreak() -ForegroundColor Cyan
+    $SelectionInput = Read-Host "Please make a selection"
+
+
+    #Perform task based off of the selection.
+    SWITCH ($SelectionInput) {
+        '0' {RETURN}
+        '1' {$Tools.DisplayMainMenu()}
+        '2' {$Applications.DisplayMainMenu()}
+        '3' {$Builds.DisplayMainMenu()}
+        '4' {$Maintenance.DisplayMainMenu()}
+        '5' {$Acuo.DisplayMainMenu()}
+        '6' {$SyngoDynamics.DisplayMainMenu()}
+        DEFAULT {. .\POWERSHELL\INFOSPARK.NAVI.PS1}
     }
-
-    ## Prepare to store information about this date range.
-    $currentWeek = New-Object PsObject
-    $dayNames = @()
-    $weeks = @()
-
-    ## Continue processing dates until the function reaches the end of the month.
-    ## The function continues until the week is completed with
-    ## days from the next month.
-    while(($currentDay -lt $start.AddMonths(1)) -or
-        ($currentDay.DayOfWeek -ne $dateTimeFormat.FirstDayOfWeek))
-    {
-        ## Determine the day names to use to label the columns.
-        $dayName = "{0:ddd}" -f $currentDay
-        if($dayNames -notcontains $dayName)
-        {
-            $dayNames += $dayName
-        }
-
-        ## Pad the day number for display, highlighting if necessary.
-        $displayDay = " {0,2} " -f $currentDay.Day
-
-        ## Determine whether to highlight a specific date.
-        if($highlightDate)
-        {
-            $compareDate = New-Object DateTime $currentDay.Year,
-                $currentDay.Month,$currentDay.Day
-            if($highlightDate -contains $compareDate)
-            {
-                $displayDay = "*" + ("{0,2}" -f $currentDay.Day) + "*"
-            }
-        }
-
-        ## Otherwise, highlight as part of a date range.
-        if($highlightDay -and ($highlightDay[0] -eq $currentDay.Day))
-        {
-            $displayDay = "[" + ("{0,2}" -f $currentDay.Day) + "]"
-            $null,$highlightDay = $highlightDay
-        }
-
-        ## Add the day of the week and the day of the month as note properties.
-        $currentWeek | Add-Member NoteProperty $dayName $displayDay
-
-        ## Move to the next day of the month.
-        $currentDay = $currentDay.AddDays(1)
-
-        ## If the function reaches the next week, store the current week
-        ## in the week list and continue.
-        if($currentDay.DayOfWeek -eq $dateTimeFormat.FirstDayOfWeek)
-        {
-            $weeks += $currentWeek
-            $currentWeek = New-Object PsObject
-        }
-    }
-
-    ## Format the weeks as a table.
-    $calendar = $weeks | Format-Table $dayNames -AutoSize | Out-String
-
-    ## Add a centered header.
-    $width = ($calendar.Split("`n") | Measure-Object -Maximum Length).Maximum
-    $header = "{0:MMMM yyyy}" -f $start
-    $padding = " " * (($width - $header.Length) / 2)
-    $displayCalendar = " `n" + $padding + $header + "`n " + $calendar
-    $displayCalendar.TrimEnd()
-
-    ## Move to the next month.
-    $start = $start.AddMonths(1)
-
-}
-}
-Export-ModuleMember -Function Show-Calendar
+} UNTIL ($SelectionInput -eq '0')
