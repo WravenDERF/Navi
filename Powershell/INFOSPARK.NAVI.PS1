@@ -1,1 +1,1 @@
-Write-Host 'Hello World!' -BackgroundColor 'Red'
+Write-Host 'Hello World!' -BackgroundColor Red
