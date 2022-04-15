@@ -15,35 +15,27 @@ Add-Member -InputObject $Tools -MemberType 'ScriptMethod' -Name 'GetWorkstationI
     $GetWMI = {
         #Receive parameters
         PARAM (
-            [Parameter(Mandatory)][string]$TargetPC
+            [Parameter(Mandatory)][string]$ComputerName
         )
 
 
         #Write Output for tracking.
-        Write-Host -Object "$($Tools.ComputerList.Count) $($TargetPC)" -ForegroundColor Cyan
-
-
+        Write-Host -Object "$($Tools.ComputerList.Count) $($ComputerName)" -ForegroundColor Cyan
         #Create a blank object.
         $Computer = New-Object System.Object
-
-
         #This will ping the machine.
-        IF (Test-Connection -Computer $TargetPC -Count 1 -Quiet) {
-
-
+        IF (Test-Connection -Computer $ComputerName -Count 1 -Quiet) {
             #This tries to connect to the WMI.
             TRY {
-
-
                 #Access the libraries
-                $Win32_BIOS = Get-WmiObject Win32_BIOS -ComputerName $TargetPC
-                $Win32_LogicalDisk = Get-WmiObject Win32_LogicalDisk -Filter "DriveType = '3'" -ComputerName $TargetPC
-		        $Win32_ComputerSystem = Get-WmiObject Win32_ComputerSystem -ComputerName $TargetPC
-		        $Win32_OperatingSystem = Get-WmiObject Win32_OperatingSystem -ComputerName $TargetPC
-		        $Win32_NetworkAdapterConfiguration = Get-WmiObject Win32_NetworkAdapterConfiguration -ComputerName $TargetPC
-		        $Win32_VideoController = Get-WmiObject Win32_VideoController  -ComputerName $TargetPC
-                $Win32_DesktopMonitor = Get-WmiObject Win32_DesktopMonitor -ComputerName $TargetPC
-                $Win32_WinSAT = Get-WmiObject -Class Win32_WinSAT -ComputerName $TargetPC
+                $Win32_BIOS = Get-WmiObject Win32_BIOS -ComputerName $ComputerName
+                $Win32_LogicalDisk = Get-WmiObject Win32_LogicalDisk -Filter "DriveType = '3'" -ComputerName $ComputerName
+		        $Win32_ComputerSystem = Get-WmiObject Win32_ComputerSystem -ComputerName $ComputerName
+		        $Win32_OperatingSystem = Get-WmiObject Win32_OperatingSystem -ComputerName $ComputerName
+		        $Win32_NetworkAdapterConfiguration = Get-WmiObject Win32_NetworkAdapterConfiguration -ComputerName $ComputerName
+		        $Win32_VideoController = Get-WmiObject Win32_VideoController  -ComputerName $ComputerName
+                $Win32_DesktopMonitor = Get-WmiObject Win32_DesktopMonitor -ComputerName $ComputerName
+                $Win32_WinSAT = Get-WmiObject -Class Win32_WinSAT -ComputerName $ComputerName
 
 
                 #Add the properties.
