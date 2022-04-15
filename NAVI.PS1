@@ -154,7 +154,7 @@ DO {
     #Perform task based off of the selection.
     SWITCH ($SelectionInput) {
         '0' {RETURN}
-        '1' {$Tools.DisplayMainMenu()}
+        '1' {Invoke-Expression $(Invoke-WebRequest 'https://raw.githubusercontent.com/WravenDERF/Navi/main/NAVI.TOOLS.PS1').Content}
         '2' {Invoke-Expression $(Invoke-WebRequest 'https://raw.githubusercontent.com/WravenDERF/Navi/main/NAVI.APPLICATIONS.PS1').Content}
         '3' {$Builds.DisplayMainMenu()}
         '4' {$Maintenance.DisplayMainMenu()}
