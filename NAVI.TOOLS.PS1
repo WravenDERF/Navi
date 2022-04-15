@@ -315,13 +315,9 @@ Add-Member -InputObject $Tools -MemberType 'ScriptMethod' -Name 'GetListFromAD' 
 }
 
 
-Add-Member -InputObject $Tools -MemberType 'ScriptMethod' -Name 'DisplayMainMenu' -Force -Value {
-
-
-    #Display the main menu.
+#Display the main menu.
+Invoke-Command -ScriptBlock {
     DO {
-
-
         #Write the main titlebar.
         Clear-Host
         Write-Host -Object $Navi.ReturnMenuBreak() -ForegroundColor Cyan
@@ -335,7 +331,6 @@ Add-Member -InputObject $Tools -MemberType 'ScriptMethod' -Name 'DisplayMainMenu
         Write-Host -Object "  4 : Create List of Radiant Workstations from AD"
         Write-Host -Object "  5 : Create List of Cupid Workstations from AD"
         Write-Host -Object $Navi.ReturnMenuBreak() -ForegroundColor Cyan
-
 
         #Allows for entry of menu choice.
         $SelectionInput = Read-Host "Please make a selection"
