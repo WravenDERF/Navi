@@ -39,7 +39,7 @@ Invoke-Command -ScriptBlock {
 Invoke-Command -ScriptBlock {
     IF ($Navi.Debug) {Write-Host -Object $('Starting the loading of other modules...') -ForegroundColor Cyan}
     Import-Module SQLPS
-	Invoke-Expression $(Invoke-WebRequest 'https://raw.githubusercontent.com/WravenDERF/Navi/main/NAVI.APPLICATIONS.PS1').Content
+	
     
 	
     <#Load the XML
@@ -155,9 +155,7 @@ DO {
     SWITCH ($SelectionInput) {
         '0' {RETURN}
         '1' {$Tools.DisplayMainMenu()}
-        '2' {$Applications.DisplayMainMenu()
-	PAUSE
-	}
+        '2' {Invoke-Expression $(Invoke-WebRequest 'https://raw.githubusercontent.com/WravenDERF/Navi/main/NAVI.APPLICATIONS.PS1').Content}
         '3' {$Builds.DisplayMainMenu()}
         '4' {$Maintenance.DisplayMainMenu()}
         '5' {$Acuo.DisplayMainMenu()}
