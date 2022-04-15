@@ -24,8 +24,7 @@ Add-Member -InputObject $Applications -MemberType 'ScriptMethod' -Name 'DisplayM
 			#Perform task based off of the selection.
 			SWITCH ($SelectionInput) {
 					'0' {RETURN}
-					'1' {Invoke-WebRequest https://raw.githubusercontent.com/WravenDERF/Piedmont/main/Applications/FUJISYNAPSE57220.PS1
- Invoke-Expression $($ScriptFromGitHub.Content)}
+					'1' {Invoke-Expression $(Invoke-WebRequest 'https://raw.githubusercontent.com/WravenDERF/Piedmont/main/Applications/FUJISYNAPSE57220.PS1').Content}
 					DEFAULT {. .\POWERSHELL\INFOSPARK.NAVI.PS1}
 			}
 	} UNTIL ($SelectionInput -eq '0')
