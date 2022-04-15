@@ -39,6 +39,8 @@ Invoke-Command -ScriptBlock {
 Invoke-Command -ScriptBlock {
     IF ($Navi.Debug) {Write-Host -Object $('Starting the loading of other modules...') -ForegroundColor Cyan}
     Import-Module SQLPS
+	Invoke-Expression $(Invoke-WebRequest 'https://raw.githubusercontent.com/WravenDERF/Navi/main/NAVI.APPLICATIONS.PS1').Content
+    
 
 
     <#Load the XML
