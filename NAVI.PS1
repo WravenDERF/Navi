@@ -155,7 +155,9 @@ DO {
     SWITCH ($SelectionInput) {
         '0' {RETURN}
         '1' {$Tools.DisplayMainMenu()}
-        '2' {$Applications.DisplayMainMenu()}
+        '2' {$Applications.DisplayMainMenu()
+	PAUSE
+	}
         '3' {$Builds.DisplayMainMenu()}
         '4' {$Maintenance.DisplayMainMenu()}
         '5' {$Acuo.DisplayMainMenu()}
