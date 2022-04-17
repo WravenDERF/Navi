@@ -6,7 +6,7 @@ $ScreenCapture = [PSCustomObject]@{
 }
 
 #[Admin] Create a sceduled task for this.
-#Start-Process -FilePath 'C:\Windows\system32\SCHTASKS.EXE' -ArgumentList '/CREATE /F /TN "FWL\ENGAGE-NAVI-UNICORN" /RU "SYSTEM" /RL HIGHEST /SC ONSTART /TR "C:\Users\Wraven\OneDrive\Navi.bat"' -Wait
+#Start-Process -FilePath 'C:\Windows\system32\SCHTASKS.EXE' -ArgumentList '/CREATE /F /TN "FWL\ENGAGE-NAVI-UNICORN" /RU "Wraven" /RL HIGHEST /SC ONSTART /TR "C:\Users\Wraven\OneDrive\Navi.bat"' -Wait
 #Start-Process -FilePath 'C:\Windows\system32\SCHTASKS.EXE' -ArgumentList '/DELETE /F /TN "FWL\ENGAGE-NAVI-UNICORN"' -Wait
 
 #This is the main 
