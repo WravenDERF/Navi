@@ -21,14 +21,17 @@ PROCESS {
        $bmp.Dispose()
     }
     
-    Add-Type -AssemblyName System.Windows.Forms
-    $ScreenHeight = $($([System.Windows.Forms.Screen]::AllScreens).WorkingArea.Height | Measure-Object -Maximum).Maximum
-    $ScreenWidth = $($([System.Windows.Forms.Screen]::AllScreens).WorkingArea.Width | Measure-Object -Sum).Sum
+    DO {
+        Add-Type -AssemblyName System.Windows.Forms
+        $ScreenHeight = $($([System.Windows.Forms.Screen]::AllScreens).WorkingArea.Height | Measure-Object -Maximum).Maximum
+        $ScreenWidth = $($([System.Windows.Forms.Screen]::AllScreens).WorkingArea.Width | Measure-Object -Sum).Sum
 
-    $bounds = [Drawing.Rectangle]::FromLTRB(0, 0, $ScreenWidth, $ScreenHeight)
-    #$bounds = [Drawing.Rectangle]::FromLTRB(0, 0, 3000, 1000)
-    $TimeStamp = Get-Date -Format "yyyy.MM.dd.HH-mm-ss"
-    screenshot $bounds "D:\Screenshot-$TimeStamp.png"   
+        $bounds = [Drawing.Rectangle]::FromLTRB(0, 0, $ScreenWidth, $ScreenHeight)
+        #$bounds = [Drawing.Rectangle]::FromLTRB(0, 0, 3000, 1000)
+        $TimeStamp = Get-Date -Format "yyyy.MM.dd.HH-mm-ss"
+        screenshot $bounds "D:\Screenshot-$TimeStamp.png"
+        Start-Sleep -Seconds 30
+    } UNTIL (1 -eq 0)
 }
 
 END {
