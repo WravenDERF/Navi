@@ -10,7 +10,7 @@ $ScreenCapture = [PSCustomObject]@{
 #Start-Process -FilePath 'C:\Windows\system32\SCHTASKS.EXE' -ArgumentList '/DELETE /F /TN "FWL\ENGAGE-NAVI-UNICORN"' -Wait
 
 #This is the main 
-[Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+[Reflection.Assembly]::LoadWithPartialName("System.Drawing") | Out-Null
 FUNCTION Screenshot ([Drawing.Rectangle]$bounds, $path) {
     $bmp = New-Object Drawing.Bitmap $bounds.width, $bounds.height
     $graphics = [Drawing.Graphics]::FromImage($bmp)
