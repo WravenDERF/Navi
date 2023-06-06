@@ -18,6 +18,16 @@ Function Resolve-WebLink {
 
 }
 
+FUNCTION Test-Ping {
+
+    PARAM(
+        [string]$IP
+    )
+
+    RETURN Test-Connection -Computer $IP -Count 1 -Quiet
+
+}
+
 Function Test-WebLink {
 
     PARAM(
