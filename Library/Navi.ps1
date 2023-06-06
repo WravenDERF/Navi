@@ -6,7 +6,7 @@ Function Resolve-WebLink {
 
     $HTTP_Request = [System.Net.WebRequest]::Create($WebAddress)
     $HTTP_Response = $HTTP_Request.GetResponse()
-    RETURN = $HTTP_Response.StatusCode
+    RETURN $HTTP_Response.StatusCode
 
 }
 
