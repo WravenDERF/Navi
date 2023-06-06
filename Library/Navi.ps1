@@ -1,3 +1,13 @@
+FUNCTION Convert-IPtoFQDN {
+
+    PARAM(
+        [string]$IP
+    )
+
+    RETURN [System.Net.Dns]::GetHostByAddress($IP).Hostname
+
+}
+
 Function Resolve-WebLink {
 
     PARAM ([string]$WebAddress)
