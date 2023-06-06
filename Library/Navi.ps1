@@ -8,6 +8,17 @@ FUNCTION Convert-IPtoFQDN {
 
 }
 
+FUNCTION Get-ProcessorUtilizationPercentage {
+
+    PARAM(
+        [string]$FQDN
+    )
+
+    #Gets the Processor Utilization 
+    RETURN "$([math]::round((Get-Counter -Computer $FQDN -Counter '\Processor(_Total)\% Processor Time').CounterSamples[0].CookedValue, 2))"
+
+}
+
 Function Resolve-WebLink {
 
     PARAM ([string]$WebAddress)
