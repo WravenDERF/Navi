@@ -1,4 +1,21 @@
+Function Resolve-WebLinkAlso {
 
+  param(
+    [string]$url,
+    [int]$parallelCount = 10,
+    [int]$iterations = 10
+  )
+
+  foreach -parallel ($x in 1..$parallelCount) {
+    1..$iterations | %{ 
+        $response = curl $url
+        $status = $response.StatusCode
+        "worker $x : iteration $_ : $status"
+        [System.Threading.Thread]::Sleep(500)
+    }
+  }
+
+} 
 
 Function Resolve-WebLink {
 
