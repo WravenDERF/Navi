@@ -19,6 +19,22 @@ FUNCTION Get-ProcessorUtilizationPercentage {
 
 }
 
+FUNCTION Get-RamUtilizationPercentage {
+
+    PARAM(
+        [string]$FQDN
+    )
+
+    #Gets the RAM Utilization
+    $Win32_ComputerSystem = Get-WmiObject 'Win32_ComputerSystem' -ComputerName $FQDN
+    $TotalMemory = $([math]::round($Win32_ComputerSystem.TotalPhysicalMemory/1GB, 0))
+    $AvailibleMemory = $([math]::round((Get-Counter -Computer $FQDN -Counter '\Memory\Available MBytes').CounterSamples[0].CookedValue / 1KB, 0))
+    $UsedMemory = $TotalMemory - $AvailibleMemory
+    $UsedMemoryPercentage = $([math]::round($(100 * $UsedMemory / $TotalMemory), 2))
+    RETURN "$UsedMemory/$TotalMemory GB ($UsedMemoryPercentage%)"
+
+}
+
 Function Resolve-WebLink {
 
     PARAM ([string]$WebAddress)
