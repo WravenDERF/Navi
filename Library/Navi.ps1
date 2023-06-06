@@ -8,6 +8,22 @@ FUNCTION Convert-IPtoFQDN {
 
 }
 
+FUNCTION Get-ConnectionPortCount {
+
+    PARAM(
+        [string]$FQDN,
+        [string]$IP,
+        [int]$Port
+    )
+
+    #Gets the Web Connections
+    $TotalCount = '0'
+    $Connections = Get-NetTCPConnection -LocalAddress $IP -LocalPort '443' -CimSession $FQDN -ErrorAction 'Ignore'
+    $TotalCount = @($Connections |Group {$_.RemoteAddress}).Count
+    RETURN $TotalCount
+
+}
+
 FUNCTION Get-ProcessorUtilizationPercentage {
 
     PARAM(
