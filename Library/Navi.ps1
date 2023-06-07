@@ -51,7 +51,7 @@ FUNCTION Get-RamUtilizationPercentage {
 
 }
 
-Function Resolve-WebLink {
+FUNCTION Resolve-WebLink {
 
     PARAM ([string]$WebAddress)
 
@@ -71,7 +71,7 @@ FUNCTION Test-Ping {
 
 }
 
-Function Test-WebLink {
+FUNCTION Test-WebLink {
 
     PARAM(
         [string]$WebAddress,
@@ -87,15 +87,6 @@ Function Test-WebLink {
             Start-Sleep -Milliseconds 5
         }
     }
-
-    #$WebAddress = 'www.google.com'
-    #$HTTP_Request = [System.Net.WebRequest]::Create($WebAddress)
-    #$HTTP_Response = $HTTP_Request.GetResponse()
-    #$HTTP_Response
-
-    #$WebAddress = 'https://iscv-pre.stanfordmed.org/iscv'
-    #$Response = cURL $WebAddress
-    #$Response
 
 }
 
