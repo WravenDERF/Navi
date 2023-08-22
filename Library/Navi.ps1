@@ -141,7 +141,7 @@ FUNCTION Get-CECHO {
         }#End IF
     } #End FOREACH
 
-    RETURN = $Output
+    RETURN $Output
     
 }
 
