@@ -90,6 +90,20 @@ FUNCTION Test-WebLink {
 
 }
 
+FUNCTION Get-DCMTK {
+
+    #Download and expand DCMTK.
+
+    PARAM(
+        [string]$WebAddress = 'https://dicom.offis.de/download/dcmtk/dcmtk366/bin/dcmtk-3.6.6-win64-dynamic.zip',
+        [string]$OutFile = 'C:\Installs\DCMTK.zip',
+        [string]$ExtractionFolder = 'C:\Programs\ModalityValidation'
+    )
+    
+    Invoke-RestMethod -Uri $WebAddress -OutFile $OutFile
+    Expand-Archive -LiteralPath $OutFile -DestinationPath $ExtractionFolder
+    $CECHO = 'C:\Installs\dcmtk-3.6.6-win64-dynamic\bin\echoscu.exe -v'
+}
 
 Clear-Host
 Write-Host -Object 'Hello World!'
