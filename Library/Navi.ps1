@@ -108,5 +108,42 @@ FUNCTION Get-DCMTK {
     } 
 }
 
+            #Gets status of DICOM listener.
+            $ResolveCECHO = {
+                PARAM ([string]$IP, [string]$AET, [string]$Port)
+                $Command = "$CECHO --call $AET $IP $Port"
+                $Reply = Invoke-Expression -Command $Command
+                $Target.Result = [bool]$False
+                FOREACH ($ReturnedLine in $Reply) {
+                    IF ($ReturnedLine -eq 'I: Received Echo Response (Success)') {
+                        $Target.Result = [bool]$True
+                    } #End IF ($ReturnedLine -eq 'I: Received Echo Response (Success)')
+                } #End FOREACH ($ReturnedLine in $Reply)
+            } #End $ResolveServiceStatus
+
+FUNCTION Get-CECHO {
+
+    #Gets status of DICOM listener.
+
+    PARAM(
+        [string]$IP,
+        [string]$AET,
+        [string]$Port
+    )
+
+    $Command = "$CECHO --call $AET $IP $Port"
+    $Reply = Invoke-Expression -Command $Command
+
+    $Output = [bool]$False
+    FOREACH ($ReturnedLine in $Reply) {
+        IF ($ReturnedLine -eq 'I: Received Echo Response (Success)') {
+            $Output = [bool]$true
+        }#End IF
+    } #End FOREACH
+
+    RETURN = $Output
+    
+}
+
 Clear-Host
 Write-Host -Object 'Hello World!'
