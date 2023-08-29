@@ -18,6 +18,18 @@ FUNCTION Convert-FQDNtoIP {
 
 }
 
+FUNCTION Repair-RemoteComputer {
+
+    PARAM(
+        [string]$FQDN
+    )
+
+    Invoke-Command -ComputerName $FQDN -ScriptBlock {
+        Repair-WindowsImage -RestoreHealth -Online
+    } #End Invoke-Command
+
+}
+
 FUNCTION Get-LastBoot {
 
     PARAM(
