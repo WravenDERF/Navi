@@ -30,6 +30,29 @@ FUNCTION Repair-RemoteComputer {
 
 }
 
+FUNCTION Enable-PowerShellRemoting {
+
+    #This is an attempt to use Sysinternals Suite to enable PowerShell Remoting.
+
+    PARAM(
+        [string]$FQDN,
+        [string]$PSEXEC = 'C:\Programs\Validation\Sysinternals\PsExec.exe'
+    )
+
+    IF ((Test-Path -Path "\\$FQDN\c$\Installs") -eq $False) {
+        New-Item -Path "\\$FQDN\c$\Installs" -ItemType Directory | Out-Null
+    }
+    
+     $Contents = @(
+        'POWERSHELL Enable-PSRemoting -Force',
+        'POWERSHELL Set-Item wsman:\localhost\client\trustedhosts * -Force',
+        'POWERSHELL Restart-Service WinRM'
+    ) | Out-File -FilePath "\\$FQDN\c$\Installs\PowerShellRemoting.bat" -Encoding ascii
+
+    Start-Process -FilePath $PSEXEC -ArgumentList "\\$FQDN -accepteula -e -h ""C:\Installs\PowerShellRemoting.bat"""
+
+}
+
 FUNCTION Get-LastBoot {
 
     PARAM(
@@ -141,18 +164,22 @@ FUNCTION Get-DCMTK {
     } 
 }
 
-            #Gets status of DICOM listener.
-            $ResolveCECHO = {
-                PARAM ([string]$IP, [string]$AET, [string]$Port)
-                $Command = "$CECHO --call $AET $IP $Port"
-                $Reply = Invoke-Expression -Command $Command
-                $Target.Result = [bool]$False
-                FOREACH ($ReturnedLine in $Reply) {
-                    IF ($ReturnedLine -eq 'I: Received Echo Response (Success)') {
-                        $Target.Result = [bool]$True
-                    } #End IF ($ReturnedLine -eq 'I: Received Echo Response (Success)')
-                } #End FOREACH ($ReturnedLine in $Reply)
-            } #End $ResolveServiceStatus
+FUNCTION Get-SysInternals {
+
+    #Download and expand SysInternals.
+    #Updated 2023.08.29
+    
+    PARAM(
+        [string]$WebAddress = 'https://download.sysinternals.com/files/SysinternalsSuite.zip',
+        [string]$OutFile = 'C:\Installs\SysinternalsSuite.zip',
+        [string]$ExtractionFolder = 'C:\Programs\Validation\Sysinternals'
+    )
+
+    IF (-NOT $(Test-Path -Path "$ExtractionFolder\PsExec.exe")) { 
+        Invoke-RestMethod -Uri $WebAddress -OutFile $OutFile
+        Expand-Archive -LiteralPath $OutFile -DestinationPath $ExtractionFolder
+    } 
+}
 
 FUNCTION Get-CECHO {
 
