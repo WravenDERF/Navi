@@ -64,6 +64,31 @@ FUNCTION Get-LastBoot {
 
 }
 
+FUNCTION Get-Domain {
+
+    PARAM(
+        [string]$FQDN
+    )
+
+    $Win32_ComputerSystem = Get-WmiObject -Class 'Win32_ComputerSystem' -ComputerName $FQDN
+    RETURN $Win32_ComputerSystem.Domain
+
+}
+
+FUNCTION Set-NetworkAdaptorDefault {
+
+    #Append primary and connection specific DNS suffix
+
+    PARAM(
+        [string]$FQDN
+    )
+
+    Invoke-Command -ComputerName $FQDN -ScriptBlock {
+        Set-DnsClientGlobalSetting -SuffixSearchList @("")
+    } #End Invoke-Command
+
+}
+
 FUNCTION Get-ConnectionPortCount {
 
     PARAM(
