@@ -8,6 +8,16 @@ FUNCTION Convert-IPtoFQDN {
 
 }
 
+FUNCTION Convert-FQDNtoIP {
+
+    PARAM(
+        [string]$FQDN
+    )
+
+    RETURN [System.Net.Dns]::GetHostAddresses($FQDN).IPAddressToString
+
+}
+
 FUNCTION Get-ConnectionPortCount {
 
     PARAM(
