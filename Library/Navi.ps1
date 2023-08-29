@@ -18,6 +18,17 @@ FUNCTION Convert-FQDNtoIP {
 
 }
 
+FUNCTION Get-LastBoot {
+
+    PARAM(
+        [string]$FQDN
+    )
+
+    $Win32_OperatingSystem = Get-WmiObject -Class 'Win32_OperatingSystem' -ComputerName $FQDN
+    RETURN [string]$([System.Management.ManagementDateTimeConverter]::ToDateTime($Win32_OperatingSystem.LastBootUpTime))
+
+}
+
 FUNCTION Get-ConnectionPortCount {
 
     PARAM(
