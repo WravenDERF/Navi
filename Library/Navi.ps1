@@ -230,5 +230,14 @@ FUNCTION Get-CECHO {
     
 }
 
+#Removes all options
+#Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HidePowerOptions" -Value 1 -Force
+
+#Removes Restart
+#Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Start\HideRestart" -Name "value" -Value 1
+
+#Removes Shutdown
+#Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Start\HideShutDown" -Name "value" -Value 1
+
 Clear-Host
 Write-Host -Object 'Hello World!'
