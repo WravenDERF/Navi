@@ -116,6 +116,8 @@ FUNCTION Get-BiosVersion {
     $Win32_BIOS = Get-WmiObject -Class 'Win32_BIOS' -ComputerName $FQDN
     RETURN $Win32_BIOS.SMBIOSBIOSVersion
 
+    #HpFirmwareUpdRec64.exe -f 'S50_01041200.bin' -s -a -b
+    #https://drive.google.com/file/d/1u3xF7L2oqHEu50wwH4MFop0-KeWMi4Rg/view?usp=sharing
 }
 
 FUNCTION Get-HardwareModel {
