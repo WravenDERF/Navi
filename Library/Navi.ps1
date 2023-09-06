@@ -53,6 +53,32 @@ FUNCTION Enable-PowerShellRemoting {
 
 }
 
+FUNCTION Repair-WindowsManagmentInterface {
+
+    #This is an attempt to use Sysinternals Suite to repair WMI.
+
+    PARAM(
+        [string]$FQDN,
+        [string]$PSEXEC = 'C:\Programs\Validation\Sysinternals\PsExec.exe'
+    )
+
+    IF ((Test-Path -Path "\\$FQDN\c$\Installs") -eq $False) {
+        New-Item -Path "\\$FQDN\c$\Installs" -ItemType Directory | Out-Null
+    }
+    
+     $Contents = @(
+        'POWERSHELL Set-Service -Name "Winmgmt" -StartupType "Disabled"',
+        'POWERSHELL Stop-Service -Name "Winmgmt"',
+        'Winmgmt /salvagerepository C:\WINDOWS\System32\wbem',
+        'Winmgmt /resetrepository C:\WINDOWS\System32\wbem',
+        'POWERSHELL Set-Service -Name "Winmgmt" -StartupType "Automatic"',
+        'POWERSHELL Start-Service -Name "Winmgmt"'
+    ) | Out-File -FilePath "\\$FQDN\c$\Installs\WindowsManagmentInterfaceFix.bat" -Encoding ascii
+
+    Start-Process -FilePath $PSEXEC -ArgumentList "\\$FQDN -accepteula -e -h ""C:\Installs\WindowsManagmentInterfaceFix.bat"""
+
+}
+
 FUNCTION Get-LastBoot {
 
     PARAM(
