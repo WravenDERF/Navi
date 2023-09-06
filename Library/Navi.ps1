@@ -167,12 +167,27 @@ FUNCTION Set-NetworkAdaptorDefault {
     #Append primary and connection specific DNS suffix
 
     PARAM(
-        [string]$FQDN
+        [string]$FQDN,
+        [bool]$Online = $True,
+        [string]$PSEXEC = 'C:\Programs\Validation\Sysinternals\PsExec.exe'
     )
 
-    Invoke-Command -ComputerName $FQDN -ScriptBlock {
-        Set-DnsClientGlobalSetting -SuffixSearchList @("")
-    } #End Invoke-Command
+    IF ($Online) {
+        Invoke-Command -ComputerName $FQDN -ScriptBlock {
+            Set-DnsClientGlobalSetting -SuffixSearchList @("")
+        } #End Invoke-Command
+    } ELSE {
+        IF ((Test-Path -Path "\\$FQDN\c$\Installs") -eq $False) {
+            New-Item -Path "\\$FQDN\c$\Installs" -ItemType Directory | Out-Null
+        }
+
+         $Contents = @(
+            'POWERSHELL Set-DnsClientGlobalSetting -SuffixSearchList @("")'
+        ) | Out-File -FilePath "\\$FQDN\c$\Installs\Set-NetworkAdaptorDefault.bat" -Encoding ascii
+
+        Start-Process -FilePath $PSEXEC -ArgumentList "\\$FQDN -accepteula -e -h ""C:\Installs\Set-NetworkAdaptorDefault.bat"""
+            
+    } #End IF
 
 }
 
