@@ -97,7 +97,16 @@ FUNCTION Get-RAM {
 
 }
 
-$([math]::round($Win32_ComputerSystem.TotalPhysicalMemory/1024/1024/1024, 0))
+FUNCTION Get-ImageDate {
+
+    PARAM(
+        [string]$FQDN
+    )
+
+    $Win32_OperatingSystem = Get-WmiObject -Class 'Win32_OperatingSystem' -ComputerName $FQDN
+    RETURN $([System.Management.ManagementDateTimeConverter]::ToDateTime($Win32_OperatingSystem.InstallDate)) 
+
+}
 
 FUNCTION Get-Domain {
 
