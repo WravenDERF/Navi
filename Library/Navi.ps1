@@ -64,6 +64,28 @@ FUNCTION Get-LastBoot {
 
 }
 
+FUNCTION Get-BiosVersion {
+
+    PARAM(
+        [string]$FQDN
+    )
+
+    $Win32_BIOS = Get-WmiObject -Class 'Win32_BIOS' -ComputerName $FQDN
+    RETURN $Win32_BIOS.SMBIOSBIOSVersion
+
+}
+
+FUNCTION Get-HardwareModel {
+
+    PARAM(
+        [string]$FQDN
+    )
+
+    $Win32_ComputerSystem = Get-WmiObject -Class 'Win32_ComputerSystem' -ComputerName $FQDN
+    RETURN $Win32_ComputerSystem.Model
+
+}
+
 FUNCTION Get-Domain {
 
     PARAM(
