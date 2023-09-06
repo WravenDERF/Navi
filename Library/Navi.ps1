@@ -86,6 +86,19 @@ FUNCTION Get-HardwareModel {
 
 }
 
+FUNCTION Get-RAM {
+
+    PARAM(
+        [string]$FQDN
+    )
+
+    $Win32_ComputerSystem = Get-WmiObject -Class 'Win32_ComputerSystem' -ComputerName $FQDN
+    RETURN $([math]::round($Win32_ComputerSystem.TotalPhysicalMemory/1024/1024/1024, 0))
+
+}
+
+$([math]::round($Win32_ComputerSystem.TotalPhysicalMemory/1024/1024/1024, 0))
+
 FUNCTION Get-Domain {
 
     PARAM(
