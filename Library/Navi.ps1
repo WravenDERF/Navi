@@ -21,13 +21,28 @@ FUNCTION Convert-FQDNtoIP {
 FUNCTION Repair-RemoteComputer {
 
     PARAM(
-        [string]$FQDN
+        [string]$FQDN,
+        [bool]$Online = $True,
+        [string]$PSEXEC = 'C:\Programs\Validation\Sysinternals\PsExec.exe'
     )
 
-    Invoke-Command -ComputerName $FQDN -ScriptBlock {
-        Repair-WindowsImage -RestoreHealth -Online
-    } #End Invoke-Command
+    IF ($Online) {
+        Invoke-Command -ComputerName $FQDN -ScriptBlock {
+            Repair-WindowsImage -RestoreHealth -Online
+        } #End Invoke-Command
+    } ELSE {
+        IF ((Test-Path -Path "\\$FQDN\c$\Installs") -eq $False) {
+            New-Item -Path "\\$FQDN\c$\Installs" -ItemType Directory | Out-Null
+        }
 
+         $Contents = @(
+            'POWERSHELL Repair-WindowsImage -RestoreHealth -Online'
+        ) | Out-File -FilePath "\\$FQDN\c$\Installs\Repair-RemoteComputer.bat" -Encoding ascii
+
+        Start-Process -FilePath $PSEXEC -ArgumentList "\\$FQDN -accepteula -e -h ""C:\Installs\Repair-RemoteComputer.bat"""
+            
+    } #End IF
+    
 }
 
 FUNCTION Enable-PowerShellRemoting {
