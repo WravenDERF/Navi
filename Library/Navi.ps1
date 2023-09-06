@@ -36,7 +36,9 @@ FUNCTION Repair-RemoteComputer {
         }
 
          $Contents = @(
-            'POWERSHELL Repair-WindowsImage -RestoreHealth -Online'
+            'POWERSHELL Repair-WindowsImage -RestoreHealth -Online',
+            'REM DISM /Online /Cleanup-Image /RestoreHealth',
+            'REM PAUSE'
         ) | Out-File -FilePath "\\$FQDN\c$\Installs\Repair-RemoteComputer.bat" -Encoding ascii
 
         Start-Process -FilePath $PSEXEC -ArgumentList "\\$FQDN -accepteula -e -h ""C:\Installs\Repair-RemoteComputer.bat"""
