@@ -76,18 +76,26 @@ FUNCTION Refresh-ZenWorks {
 
     PARAM(
         [string]$FQDN,
+        [bool]$Online = $True,
         [string]$PSEXEC = 'C:\Programs\Validation\Sysinternals\PsExec.exe'
     )
 
-    IF ((Test-Path -Path "\\$FQDN\c$\Installs") -eq $False) {
-        New-Item -Path "\\$FQDN\c$\Installs" -ItemType Directory | Out-Null
-    }
-    
-     $Contents = @(
-        'ZAC ref'
-    ) | Out-File -FilePath "\\$FQDN\c$\Installs\Refresh-ZenWorks.bat" -Encoding ascii
+    IF ($Online) {
+        Invoke-Command -ComputerName $FQDN -ScriptBlock {
+            Start-Process -FilePath 'ZEN' -ArgumentList 'ref' -Wait
+        } #End Invoke-Command
+    } ELSE {
+        IF ((Test-Path -Path "\\$FQDN\c$\Installs") -eq $False) {
+            New-Item -Path "\\$FQDN\c$\Installs" -ItemType Directory | Out-Null
+        }
 
-    Start-Process -FilePath $PSEXEC -ArgumentList "\\$FQDN -accepteula -e -h ""C:\Installs\Refresh-ZenWorks.bat"""
+         $Contents = @(
+            'ZAC ref'
+        ) | Out-File -FilePath "\\$FQDN\c$\Installs\Refresh-ZenWorks.bat" -Encoding ascii
+
+        Start-Process -FilePath $PSEXEC -ArgumentList "\\$FQDN -accepteula -e -h ""C:\Installs\Refresh-ZenWorks.bat"""
+            
+    } #End IF
 
 }
 
