@@ -92,7 +92,9 @@ FUNCTION Refresh-ZenWorks {
         }
 
          $Contents = @(
-            'ZAC ref'
+            'ZAC cc',
+            'ZAC ref',
+            'ZAC bl >> "C:\Installs\Refresh-ZenWorks.log"'
         ) | Out-File -FilePath "\\$FQDN\c$\Installs\Refresh-ZenWorks.bat" -Encoding ascii
 
         Start-Process -FilePath $PSEXEC -ArgumentList "\\$FQDN -accepteula -e -h ""C:\Installs\Refresh-ZenWorks.bat"""
