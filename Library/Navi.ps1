@@ -82,7 +82,9 @@ FUNCTION Refresh-ZenWorks {
 
     IF ($Online) {
         Invoke-Command -ComputerName $FQDN -ScriptBlock {
+            Start-Process -FilePath 'ZEN' -ArgumentList 'cc' -Wait
             Start-Process -FilePath 'ZEN' -ArgumentList 'ref' -Wait
+            Start-Process -FilePath 'ZEN' -ArgumentList 'bl >> C:\Installs\Refresh-ZenWorks.log' -Wait
         } #End Invoke-Command
     } ELSE {
         IF ((Test-Path -Path "\\$FQDN\c$\Installs") -eq $False) {
