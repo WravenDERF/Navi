@@ -70,6 +70,27 @@ FUNCTION Enable-PowerShellRemoting {
 
 }
 
+FUNCTION Refresh-ZenWorks {
+
+    #This is an attempt to use Sysinternals Suite to refresh ZenWorks.
+
+    PARAM(
+        [string]$FQDN,
+        [string]$PSEXEC = 'C:\Programs\Validation\Sysinternals\PsExec.exe'
+    )
+
+    IF ((Test-Path -Path "\\$FQDN\c$\Installs") -eq $False) {
+        New-Item -Path "\\$FQDN\c$\Installs" -ItemType Directory | Out-Null
+    }
+    
+     $Contents = @(
+        'ZAC ref'
+    ) | Out-File -FilePath "\\$FQDN\c$\Installs\Refresh-ZenWorks.bat" -Encoding ascii
+
+    Start-Process -FilePath $PSEXEC -ArgumentList "\\$FQDN -accepteula -e -h ""C:\Installs\Refresh-ZenWorks.bat"""
+
+}
+
 FUNCTION Repair-WindowsManagmentInterface {
 
     #This is an attempt to use Sysinternals Suite to repair WMI.
