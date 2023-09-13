@@ -210,6 +210,10 @@ FUNCTION Set-NetworkAdaptorDefault {
     IF ($Online) {
         Invoke-Command -ComputerName $FQDN -ScriptBlock {
             Set-DnsClientGlobalSetting -SuffixSearchList @("")
+            $Win32_NetworkAdapterConfiguration = Get-WmiObject -Class 'Win32_NetworkAdapterConfiguration' -Filter "ipenabled = 'true'"
+            $Win32_NetworkAdapterConfiguration.SetDnsDomain('mw.trinity-health.org')
+            $Win32_NetworkAdapterConfiguration.SetDynamicDNSRegistration($True,$False)
+            Register-DnsClient
         } #End Invoke-Command
     } ELSE {
         IF ((Test-Path -Path "\\$FQDN\c$\Installs") -eq $False) {
@@ -217,7 +221,11 @@ FUNCTION Set-NetworkAdaptorDefault {
         }
 
          $Contents = @(
-            'POWERSHELL Set-DnsClientGlobalSetting -SuffixSearchList @("")'
+            'POWERSHELL Set-DnsClientGlobalSetting -SuffixSearchList @("")',
+            'POWERSHELL $Win32_NetworkAdapterConfiguration = Get-WmiObject -Class 'Win32_NetworkAdapterConfiguration' -Filter "ipenabled = 'true'"',
+            'POWERSHELL $Win32_NetworkAdapterConfiguration.SetDnsDomain('mw.trinity-health.org')',
+            'POWERSHELL $Win32_NetworkAdapterConfiguration.SetDynamicDNSRegistration($True,$False)',
+            'POWERSHELL Register-DnsClient'
         ) | Out-File -FilePath "\\$FQDN\c$\Installs\Set-NetworkAdaptorDefault.bat" -Encoding ascii
 
         Start-Process -FilePath $PSEXEC -ArgumentList "\\$FQDN -accepteula -e -h ""C:\Installs\Set-NetworkAdaptorDefault.bat"""
