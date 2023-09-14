@@ -140,6 +140,17 @@ FUNCTION Get-LastBoot {
 
 }
 
+FUNCTION Get-LastIamged {
+
+    PARAM(
+        [string]$FQDN
+    )
+
+    $Win32_OperatingSystem = Get-WmiObject -Class 'Win32_OperatingSystem' -ComputerName $FQDN
+    RETURN [string]$([System.Management.ManagementDateTimeConverter]::ToDateTime($Win32_OperatingSystem.InstallDate))
+
+}
+
 FUNCTION Get-BiosVersion {
 
     PARAM(
