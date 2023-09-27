@@ -47,6 +47,19 @@ FUNCTION Repair-RemoteComputer {
     
 }
 
+FUNCTION Get-AddRemovePrograms {
+
+    #This exports a csv.
+
+    PARAM(
+        [string]$FQDN,
+        [string]$OutputPath = "C:\Logs\AddRemovePrograms-$(Get-Date -Format 'yyyy.MM.dd.HHmm').csv"
+    )
+
+    Get-WmiObject -ComputerName $FQDN -Class 'Win32_Product' | Export-Csv -Path $ListOut -NoTypeInformation
+
+}
+
 FUNCTION Enable-PowerShellRemoting {
 
     #This is an attempt to use Sysinternals Suite to enable PowerShell Remoting.
