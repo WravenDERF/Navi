@@ -399,6 +399,78 @@ FUNCTION Get-CECHO {
     
 }
 
+FUNCTION Get-DataDICOM {
+
+    PARAM(
+        $ResponseCollectionDICOM
+    )
+
+    [string]$StudyBreak = 'I: # Dicom-Data-Set'
+    FOREACH ($Line in $ResponseCollectionDICOM) {
+
+        IF ($Line -eq $StudyBreak) {
+
+            #Create a study object wil all details to be filled in.   
+            $Study = [PSCustomObject]@{   
+                'Date' = $null   
+                'Accession' = $null   
+                'Modality' = $null   
+                'Description' = $null   
+                'PatientName' = $null   
+                'PatientMRN' = $null   
+                'PatientDOB' = $null   
+                'PatientSex' = $null   
+                'UID' = $null   
+            }  
+        } ELSE {
+            #Parse the info returned.   
+            $DataPoint = $Line.Split('()')[1]   
+            SWITCH ($DataPoint){   
+				'0008,0020'{   
+                    $Study.Date = [string]$($Line.Split('[]')[1])   
+					; Break   
+				}   
+				'0008,0050'{   
+                    $Study.Accession = [string]$($Line.Split('[]')[1])   
+					; Break   
+				}   
+				'0008,0060'{   
+                    $Study.Modality = [string]$($Line.Split('[]')[1])   
+					; Break   
+				}   
+				'0008,1030'{   
+                    $Study.Description = [string]$($Line.Split('[]')[1])   
+					; Break   
+				}   
+				'0010,0010'{   
+                    $Study.PatientName = [string]$($Line.Split('[]')[1])   
+					; Break   
+				}   
+				'0010,0020'{   
+                    $Study.PatientMRN = [string]$($Line.Split('[]')[1])   
+					; Break   
+				}   
+				'0010,0030'{   
+                    $Study.PatientDOB = [string]$($Line.Split('[]')[1])   
+					; Break   
+				}   
+				'0010,0040'{   
+                    $Study.PatientSex = [string]$($Line.Split('[]')[1])   
+					; Break   
+				}   
+				'0020,000D'{   
+                    $Study.UID = [string]$($Line.Split('[]')[1])   
+                    ; Break   
+				}   
+            }   
+        }
+    }
+
+    RETURN $Study
+
+}
+
+
 #Removes all options
 #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HidePowerOptions" -Value 1 -Force
 
