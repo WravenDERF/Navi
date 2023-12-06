@@ -1,0 +1,35 @@
+#https://woshub.com/simple-http-webserver-powershell/
+#https://drakelambert.dev/2021/09/Quick-HTTP-Listener-in-PowerShell.html
+#https://4sysops.com/archives/building-a-web-server-with-powershell/
+
+$httpListener = New-Object System.Net.HttpListener
+$httpListener.Prefixes.Add("http://localhost:9090/")
+$httpListener.Prefixes.Add("http://192.168.86.51:9090/")
+#$httpListener.Prefixes.Add("http://+:9090/")
+$httpListener.Start()
+
+#Get-NetTCPConnection -State Listen | Select-Object -Property LocalAddress, LocalPort, State | Sort-Object LocalPort | Format-Table
+#New-NetFirewallRule -DisplayName "AllowTestWebServer" -Direction Inbound -Protocol TCP –LocalPort 9090 -Action Allow
+
+WHILE (0 -ne 1) {
+    $context = $httpListener.GetContext()
+    $context.Response.StatusCode = 200
+    $context.Response.ContentType = 'text/HTML'
+    $WebContent = Get-Content  -Path "C:\Programs\WebTest\FredTest.html" -Encoding UTF8
+    $EncodingWebContent = [Text.Encoding]::UTF8.GetBytes($WebContent)
+    $context.Response.OutputStream.Write($EncodingWebContent , 0, $EncodingWebContent.Length)
+    $context.Response.Close()
+}
+
+New-PSDrive -Name 'MyPowerShellSite' -PSProvider 'FileSystem' -Root $PWD.Path
+WHILE (0 -ne 1) {
+    $Context = $httpListener.GetContext()
+    #$URL = $Context.Request.Url.LocalPath
+    #$Content = Get-Content -Encoding Byte -Path "MyPowerShellSite:$URL"
+    $Context.Response.ContentType = [System.Web.MimeMapping]::GetMimeMapping("MyPowerShellSite:$URL")
+    $Context.Response.OutputStream.Write($Content, 0, $Content.Length)
+    $Context.Response.Close()
+}
+
+$httpListener.Close()
+
