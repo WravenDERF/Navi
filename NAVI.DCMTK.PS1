@@ -1,5 +1,10 @@
 $DCMTK = [PSCustomObject]@{
     'Debug' = [bool]$False
+
+    'Vendor' = [string]'infoSpark'
+    'Name' = [string]'DCMTK'
+    'Version' = [string]'2023.12.21.A'
+
     'CFIND' = [string]'C:\Programs\DCMTK\dcmtk-3.6.6-win64-dynamic\bin\findscu.exe'
     'CECHO' = [string]'C:\Programs\DCMTK\dcmtk-3.6.6-win64-dynamic\bin\echoscu.exe'
     'CMOVE' = [string]'C:\Programs\DCMTK\dcmtk-3.6.6-win64-dynamic\bin\movescu.exe'
@@ -300,3 +305,9 @@ FUNCTION Execute-CECHO {
     RETURN $Output
     
 }
+
+$DCMTK | Add-Member 'ScriptMethod' -name 'Get-DCMTK' -Value ${function:Get-DCMTK}
+$DCMTK | Add-Member 'ScriptMethod' -name 'Assemble-Command' -Value ${function:Assemble-Command}
+$DCMTK | Add-Member 'ScriptMethod' -name 'Execute-CMOVE' -Value ${function:Execute-CMOVE}
+$DCMTK | Add-Member 'ScriptMethod' -name 'Execute-CFIND' -Value ${function:Execute-CFIND}
+$DCMTK | Add-Member 'ScriptMethod' -name 'Execute-CECHO' -Value ${function:Execute-CECHO}
