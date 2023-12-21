@@ -1,44 +1,51 @@
+$DCMTK = [PSCustomObject]@{
+    'Debug' = [bool]$False
+    'CFIND' = [string]'C:\Programs\DCMTK\dcmtk-3.6.6-win64-dynamic\bin\findscu.exe'
+    'CECHO' = [string]'C:\Programs\DCMTK\dcmtk-3.6.6-win64-dynamic\bin\echoscu.exe'
+    'CMOVE' = [string]'C:\Programs\DCMTK\dcmtk-3.6.6-win64-dynamic\bin\movescu.exe'
+}
+
 FUNCTION Get-DCMTK {
 
-	#Updated-2023.12.04
     #Download and expand DCMTK.
     #Works with 3.6.6
 
     PARAM(
         [string]$WebAddress = 'https://dicom.offis.de/download/dcmtk/dcmtk366/bin/dcmtk-3.6.6-win64-dynamic.zip',
         [string]$OutFile = 'C:\Installs\DCMTK.zip',
-        [string]$ExtractionFolder = 'C:\Programs\ModalityValidation'
+        [string]$ExtractionFolder = 'C:\Programs\DCMTK'
     )
 
     IF (-NOT $(Test-Path -Path "$ExtractionFolder\dcmtk-3.6.6-win64-dynamic\bin\findscu.exe")) { 
         Invoke-RestMethod -Uri $WebAddress -OutFile $OutFile
         Expand-Archive -LiteralPath $OutFile -DestinationPath $ExtractionFolder
         $CECHO = 'C:\Installs\dcmtk-3.6.6-win64-dynamic\bin\echoscu.exe -v'
-    } 
+    }
+
+    #$CECHO = 'C:\Programs\DCMTK\dcmtk-3.6.6-win64-dynamic\bin\echoscu.exe'
+    #$CFIND = 'C:\Programs\DCMTK\dcmtk-3.6.6-win64-dynamic\bin\findscu.exe'
+    #$CMOVE = 'C:\Programs\DCMTK\dcmtk-3.6.6-win64-dynamic\bin\movescu.exe'
 }
-
-
 
 FUNCTION Assemble-Command {
 
-	#Updated-2023.12.04
     #Assembles a line for DCMTK commands and returns a string.
 
     PARAM(
         [string]$SCPAET = $Null,
         [string]$SCUAET = $Null,
-        [string]$Level = 'STUDY',
+        [string]$Level = $Null,
         [string]$StudyUID = $Null,
         [string]$StudyDate = $Null,
         [string]$StudyAccession = $Null,
-        [string]$StudyModality = $Null,
+        [string]$SeriesModality = $Null,
+        [string]$StudyModalities = $Null,
         [string]$StudyDescription = $Null,
         [string]$PatientName = $Null,
         [string]$PatientMRN = $Null,
         [string]$PatientDOB = $Null,
         [string]$PatientSex = $Null,
         [string]$SeriesUID = $Null,
-        [string]$SeriesInstances = $Null,
         [string]$IP = $Null,
         [string]$Port = $Null
     )
@@ -51,15 +58,14 @@ FUNCTION Assemble-Command {
         'StudyDate' = [string]"--key 0008,0020=" + $StudyDate
         'StudyAccession' = [string]"--key 0008,0050=" + $StudyAccession
         'Level' = [string]"--key 0008,0052=" + $Level
-        'StudyModality' = [string]"--key 0008,0060=" + $StudyModality
+        'SeriesModality' = [string]"--key 0008,0060=" + $SeriesModality
+        'StudyModalities' = [string]"--key 0008,0061=" + $StudyModalities
         'StudyDescription' = [string]"--key 0008,1030=" + $StudyDescription
         'PatientName' = [string]"--key 0010,0010=" + $PatientName
         'PatientMRN' = [string]"--key 0010,0020=" + $PatientMRN
         'PatientDOB' = [string]"--key 0010,0030=" + $PatientDOB
         'PatientSex' = [string]"--key 0010,0040=" + $PatientSex
-        'SeriesInstances' = [string]"--key 0020,1209=" + $SeriesInstances
         'StudyUID' = [string]"--key 0020,000D=" + $StudyUID
-        'SeriesUID' = [string]"--key 0020,000E=" + $SeriesUID
         'IP' = [string]$IP
         'Port' = [string]$Port
     }
@@ -73,13 +79,13 @@ FUNCTION Assemble-Command {
         $DICOM.StudyUID + [char]32
         $DICOM.StudyDate + [char]32
         $DICOM.StudyAccession + [char]32
-        $DICOM.StudyModality + [char]32
+        $DICOM.SeriesModality + [char]32
+        $DICOM.StudyModalities + [char]32
         $DICOM.StudyDescription + [char]32
         $DICOM.PatientName + [char]32
         $DICOM.PatientMRN + [char]32
         $DICOM.PatientDOB + [char]32
         $DICOM.PatientSex + [char]32
-        $DICOM.SeriesInstances + [char]32
         $DICOM.IP + [char]32
         $DICOM.Port
     )
@@ -90,11 +96,8 @@ FUNCTION Assemble-Command {
     
 }
 
-
-
 FUNCTION Execute-CMOVE {
 
-	#Updated-2023.12.04
     #Performs a CMOVE and returns and object.
     #W: Move response with warning status (Warning: SubOperationsCompleteOneOrMoreFailures)
     #W: Move response with error status (Failed: UnableToProcess)
@@ -123,7 +126,7 @@ FUNCTION Execute-CMOVE {
         'Sender' = $SCPAET
         'Receiver' = $SCUAET
         'SeriesCount' = [int]0
-        'MoveResult' = [string]'Success'
+        'Success' = [bool]$False
     }
 
     $ReturnCollection = Invoke-Expression -Command "$($Navi.CMOVE) $(Assemble-Command -SCPAET $SCPAET -SCUAET $SCUAET -Level $Level -StudyUID $StudyUID -StudyDate $StudyDate -StudyAccession $StudyAccession -StudyModality $StudyModality -StudyDescription $StudyDescription -PatientName $PatientName -PatientMRN $PatientMRN -PatientDOB $PatientDOB -PatientSex $PatientSex -IP $IP -Port $Port)"
@@ -138,22 +141,19 @@ FUNCTION Execute-CMOVE {
 
         $DataPoint = $Line.Split(' ')[0]
         IF ($DataPoint -eq 'W:') {
-            $Results.MoveResult = $Line.Split('()')
+            IF ($($Line.Split('()')) -eq 'Success') {
+                $Results.Success = $True
+            }
         }
 
     }
-
 
     RETURN $Results
     
 }
 
-
-
-
 FUNCTION Execute-CFIND {
 
-	#Updated-2023.12.04
     #Performs a CFIND and returns and object.
     #W: Move response with warning status (Warning: SubOperationsCompleteOneOrMoreFailures)
     #W: Move response with error status (Failed: UnableToProcess)
@@ -162,50 +162,61 @@ FUNCTION Execute-CFIND {
     PARAM(
         [string]$SCPAET = $Null,
         [string]$SCUAET = $Null,
-        [string]$Level = 'STUDY',
+        [string]$Level = 'SERIES',
         [string]$StudyUID = $Null,
         [string]$StudyDate = $Null,
         [string]$StudyAccession = $Null,
-        [string]$StudyModality = $Null,
+        [string]$SeriesModality = $Null,
+        [string]$StudyModalities = $Null,
         [string]$StudyDescription = $Null,
         [string]$PatientName = $Null,
         [string]$PatientMRN = $Null,
         [string]$PatientIssuer = $Null,
         [string]$PatientDOB = $Null,
         [string]$PatientSex = $Null,
-        [string]$SeriesUID = $Null,
-        [string]$SeriesInstances = $Null,
         [string]$IP = $Null,
         [string]$Port = $Null
     )
 
-    $ReturnCollection = Invoke-Expression -Command "$($Navi.CFIND) $(Assemble-Command -SCPAET $SCPAET -SCUAET $SCUAET -Level $Level -StudyUID $StudyUID -StudyDate $StudyDate -StudyAccession $StudyAccession -StudyModality $StudyModality -StudyDescription $StudyDescription -PatientName $PatientName -PatientMRN $PatientMRN -PatientIssuer $PatientIssuer -PatientDOB $PatientDOB -PatientSex $PatientSex -IP $IP -Port $Port)"
+    $Counter = [int]0
+    $Command = "$($Navi.CFIND) $(Assemble-Command -SCPAET $SCPAET -SCUAET $SCUAET -Level $Level -StudyUID $StudyUID -StudyDate $StudyDate -StudyAccession $StudyAccession -SeriesModality $SeriesModality -StudyModalities $StudyModalities -StudyDescription $StudyDescription -PatientName $PatientName -PatientMRN $PatientMRN -PatientIssuer $PatientIssuer -PatientDOB $PatientDOB -PatientSex $PatientSex -IP $IP -Port $Port)"
+    $Command
+    $ReturnCollection = Invoke-Expression -Command $Command
+    $ReturnCollection
 
     [string]$StudyBreak = 'I: # Dicom-Data-Set'
     FOREACH ($Line in $ReturnCollection) {
+
+        $StudyCount = $Line.Split(' ')
+        $DataPoint = $Line.Split('()')[1]
 
         IF ($Line -eq $StudyBreak) {
 
             #Create a study object wil all details to be filled in.   
             $Study = [PSCustomObject]@{   
-                'Date' = $null   
-                'Accession' = $null   
-                'Modality' = $null   
-                'Description' = $null   
-                'PatientName' = $null   
-                'PatientMRN' = $null   
-                'PatientIssuer' = $null   
-                'PatientDOB' = $null   
-                'PatientSex' = $null 
-                'SeriesInstances' = $null   
-                'SeriesUID' = $null   
-                'StudyUID' = $null   
+                'Command' = $Command
+                'Date' = [string]$Null
+                'Accession' = [string]$Null
+                'SeriesModality' = [string]$Null
+                'StudyModalities' = [string]$Null
+                'Description' = [string]$Null
+                'PatientName' = [string]$Null
+                'PatientMRN' = [string]$Null
+                'PatientIssuer' = [string]$Null
+                'PatientDOB' = [string]$Null
+                'PatientSex' = [string]$Null
+                'StudyUID' = [string]$Null
+                'ImageCount' = $Counter
             }
 
         } ELSE {
 
-            #Parse the info returned.   
-            $DataPoint = $Line.Split('()')[1]
+            #Count how many images returned.
+            IF (($StudyCount[1] -eq 'Find') -and ($StudyCount[2] -eq 'Response:')) {
+                $Counter = $StudyCount[3]
+            }
+
+            #Parse the info returned.
             SWITCH ($DataPoint){   
 				'0008,0020'{   
                     $Study.Date = [string]$($Line.Split('[]')[1])   
@@ -216,9 +227,13 @@ FUNCTION Execute-CFIND {
 					; Break   
 				}   
 				'0008,0060'{   
-                    $Study.Modality = [string]$($Line.Split('[]')[1])   
+                    $Study.SeriesModality = [string]$($Line.Split('[]')[1])   
 					; Break   
 				}   
+				'0008,0061'{   
+                    $Study.StudyModalities = [string]$($Line.Split('[]')[1])
+					; Break
+				}
 				'0008,1030'{   
                     $Study.Description = [string]$($Line.Split('[]')[1])   
 					; Break   
@@ -251,10 +266,6 @@ FUNCTION Execute-CFIND {
                     $Study.StudyUID = [string]$($Line.Split('[]')[1])   
                     ; Break   
 				}
-				'0020,000E'{   
-                    $Study.SeriesUID = [string]$($Line.Split('[]')[1])   
-                    ; Break   
-				}
             }
         }
     }
@@ -263,11 +274,8 @@ FUNCTION Execute-CFIND {
     
 }
 
-
-
 FUNCTION Execute-CECHO {
 
-	#Updated-2023.12.04
     #Gets status of DICOM listener.
 
     PARAM(
