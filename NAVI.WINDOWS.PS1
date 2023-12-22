@@ -1,20 +1,35 @@
-FUNCTION Convert-IPtoFQDN {
+FUNCTION Test-Ping {
 
     PARAM(
-        [string]$IP
+        [string]$IP = $Null,
+        [string]$Computer = $Null
     )
 
-    RETURN [System.Net.Dns]::GetHostByAddress($IP).Hostname
+    $TestPing = [PSCustomObject]@{
+        'Debug' = [bool]$False
 
-}
+        'Vendor' = [string]'infoSpark'
+        'Name' = [string]'Test-Ping'
+        'Version' = [string]'2023.12.22'
 
-FUNCTION Convert-FQDNtoIP {
+        'Ping' = [bool]$False
+        'IP' = [string]$False
+        'FQDN' = [string]$False
+    }
+    
+    IF ($IP -ne "") {
+        $TestPing.Ping = Test-Connection -Computer $IP -Count 1 -Quiet    
+        $TestPing.FQDN = [System.Net.Dns]::GetHostByAddress($IP).Hostname
+        $TestPing.IP = $IP
+    } ELSE {
+        IF ($Computer -ne "") {
+            $TestPing.Ping = Test-Connection -Computer $Computer -Count 1 -Quiet    
+            $TestPing.IP = [System.Net.Dns]::GetHostAddresses($Computer).IPAddressToString
+            $TestPing.FQDN = [System.Net.Dns]::GetHostByAddress($($TestPing.IP)).Hostname
+        }
+    }
 
-    PARAM(
-        [string]$FQDN
-    )
-
-    RETURN [System.Net.Dns]::GetHostAddresses($FQDN).IPAddressToString
+    RETURN $TestPing
 
 }
 
@@ -246,8 +261,8 @@ FUNCTION Set-NetworkAdaptorDefault {
 
          $Contents = @(
             'POWERSHELL Set-DnsClientGlobalSetting -SuffixSearchList @("")',
-            'POWERSHELL $Win32_NetworkAdapterConfiguration = Get-WmiObject -Class 'Win32_NetworkAdapterConfiguration' -Filter "ipenabled = 'true'"',
-            'POWERSHELL $Win32_NetworkAdapterConfiguration.SetDnsDomain('mw.trinity-health.org')',
+            #'POWERSHELL $Win32_NetworkAdapterConfiguration = Get-WmiObject -Class 'Win32_NetworkAdapterConfiguration' -Filter "ipenabled = 'true'"',
+            #'POWERSHELL $Win32_NetworkAdapterConfiguration.SetDnsDomain('mw.trinity-health.org')',
             'POWERSHELL $Win32_NetworkAdapterConfiguration.SetDynamicDNSRegistration($True,$False)',
             'POWERSHELL Register-DnsClient'
         ) | Out-File -FilePath "\\$FQDN\c$\Installs\Set-NetworkAdaptorDefault.bat" -Encoding ascii
@@ -311,16 +326,6 @@ FUNCTION Resolve-WebLink {
 
 }
 
-FUNCTION Test-Ping {
-
-    PARAM(
-        [string]$IP
-    )
-
-    RETURN Test-Connection -Computer $IP -Count 1 -Quiet
-
-}
-
 FUNCTION Test-WebLink {
 
     PARAM(
@@ -340,24 +345,6 @@ FUNCTION Test-WebLink {
 
 }
 
-FUNCTION Get-DCMTK {
-
-    #Download and expand DCMTK.
-    #Works with 3.6.6
-
-    PARAM(
-        [string]$WebAddress = 'https://dicom.offis.de/download/dcmtk/dcmtk366/bin/dcmtk-3.6.6-win64-dynamic.zip',
-        [string]$OutFile = 'C:\Installs\DCMTK.zip',
-        [string]$ExtractionFolder = 'C:\Programs\ModalityValidation'
-    )
-
-    IF (-NOT $(Test-Path -Path "$ExtractionFolder\dcmtk-3.6.6-win64-dynamic\bin\findscu.exe")) { 
-        Invoke-RestMethod -Uri $WebAddress -OutFile $OutFile
-        Expand-Archive -LiteralPath $OutFile -DestinationPath $ExtractionFolder
-        $CECHO = 'C:\Installs\dcmtk-3.6.6-win64-dynamic\bin\echoscu.exe -v'
-    } 
-}
-
 FUNCTION Get-SysInternals {
 
     #Download and expand SysInternals.
@@ -374,102 +361,6 @@ FUNCTION Get-SysInternals {
         Expand-Archive -LiteralPath $OutFile -DestinationPath $ExtractionFolder
     } 
 }
-
-FUNCTION Get-CECHO {
-
-    #Gets status of DICOM listener.
-
-    PARAM(
-        [string]$IP,
-        [string]$AET,
-        [string]$Port
-    )
-
-    $Command = "$CECHO --call $AET $IP $Port"
-    $Reply = Invoke-Expression -Command $Command
-
-    $Output = [bool]$False
-    FOREACH ($ReturnedLine in $Reply) {
-        IF ($ReturnedLine -eq 'I: Received Echo Response (Success)') {
-            $Output = [bool]$true
-        }#End IF
-    } #End FOREACH
-
-    RETURN $Output
-    
-}
-
-FUNCTION Get-DataDICOM {
-
-    PARAM(
-        $ResponseCollectionDICOM
-    )
-
-    [string]$StudyBreak = 'I: # Dicom-Data-Set'
-    FOREACH ($Line in $ResponseCollectionDICOM) {
-
-        IF ($Line -eq $StudyBreak) {
-
-            #Create a study object wil all details to be filled in.   
-            $Study = [PSCustomObject]@{   
-                'Date' = $null   
-                'Accession' = $null   
-                'Modality' = $null   
-                'Description' = $null   
-                'PatientName' = $null   
-                'PatientMRN' = $null   
-                'PatientDOB' = $null   
-                'PatientSex' = $null   
-                'UID' = $null   
-            }  
-        } ELSE {
-            #Parse the info returned.   
-            $DataPoint = $Line.Split('()')[1]   
-            SWITCH ($DataPoint){   
-				'0008,0020'{   
-                    $Study.Date = [string]$($Line.Split('[]')[1])   
-					; Break   
-				}   
-				'0008,0050'{   
-                    $Study.Accession = [string]$($Line.Split('[]')[1])   
-					; Break   
-				}   
-				'0008,0060'{   
-                    $Study.Modality = [string]$($Line.Split('[]')[1])   
-					; Break   
-				}   
-				'0008,1030'{   
-                    $Study.Description = [string]$($Line.Split('[]')[1])   
-					; Break   
-				}   
-				'0010,0010'{   
-                    $Study.PatientName = [string]$($Line.Split('[]')[1])   
-					; Break   
-				}   
-				'0010,0020'{   
-                    $Study.PatientMRN = [string]$($Line.Split('[]')[1])   
-					; Break   
-				}   
-				'0010,0030'{   
-                    $Study.PatientDOB = [string]$($Line.Split('[]')[1])   
-					; Break   
-				}   
-				'0010,0040'{   
-                    $Study.PatientSex = [string]$($Line.Split('[]')[1])   
-					; Break   
-				}   
-				'0020,000D'{   
-                    $Study.UID = [string]$($Line.Split('[]')[1])   
-                    ; Break   
-				}   
-            }   
-        }
-    }
-
-    RETURN $Study
-
-}
-
 
 #Removes all options
 #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HidePowerOptions" -Value 1 -Force
