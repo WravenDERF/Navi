@@ -33,6 +33,51 @@ FUNCTION Test-Ping {
 
 }
 
+FUNCTION Get-WindowsInfo {
+
+    PARAM(
+        [string]$IP = $Null,
+        [string]$Computer = $Null
+    )
+
+    #Create a return Object
+    $Windows = [PSCustomObject]@{
+        'Debug' = [bool]$False
+
+        'Vendor' = [string]'infoSpark'
+        'Name' = [string]'Get-WindowsInfo'
+        'Version' = [string]'2023.12.26'
+
+        'LastImageTime' = [string]$False
+        'LastBootTime' = [string]$False
+        'NameCaption' = [string]$False
+    }
+
+    #Checks the input and assigns it to one variable.
+    $TargetWindows = [string]$Null
+    IF ($IP -ne "") {
+        $TargetWindows = $IP
+    }
+    IF ($Computer -ne "") {
+        $TargetWindows = $Computer
+    }
+
+    #Connect to WMI and get the data.
+    $Win32_OperatingSystem = Get-WmiObject -Class 'Win32_OperatingSystem' -ComputerName $TargetWindows
+
+    #Assign data to return object.
+    $Windows.LastImageTime = [string]$([System.Management.ManagementDateTimeConverter]::ToDateTime($Win32_OperatingSystem.InstallDate))
+    $Windows.LastBootTime = [string]$([System.Management.ManagementDateTimeConverter]::ToDateTime($Win32_OperatingSystem.LastBootUpTime))
+    $Windows.NameCaption = [string]$Win32_OperatingSystem.Caption
+
+    #Return the object.
+    RETURN $Windows
+
+}
+
+#    $Win32_ComputerSystem = Get-WmiObject -Class 'Win32_ComputerSystem' -ComputerName $FQDN
+#    RETURN $Win32_ComputerSystem.Model
+
 FUNCTION Repair-RemoteComputer {
 
     PARAM(
@@ -157,28 +202,6 @@ FUNCTION Repair-WindowsManagmentInterface {
 
 }
 
-FUNCTION Get-LastBoot {
-
-    PARAM(
-        [string]$FQDN
-    )
-
-    $Win32_OperatingSystem = Get-WmiObject -Class 'Win32_OperatingSystem' -ComputerName $FQDN
-    RETURN [string]$([System.Management.ManagementDateTimeConverter]::ToDateTime($Win32_OperatingSystem.LastBootUpTime))
-
-}
-
-FUNCTION Get-LastIamged {
-
-    PARAM(
-        [string]$FQDN
-    )
-
-    $Win32_OperatingSystem = Get-WmiObject -Class 'Win32_OperatingSystem' -ComputerName $FQDN
-    RETURN [string]$([System.Management.ManagementDateTimeConverter]::ToDateTime($Win32_OperatingSystem.InstallDate))
-
-}
-
 FUNCTION Get-BiosVersion {
 
     PARAM(
@@ -211,17 +234,6 @@ FUNCTION Get-RAM {
 
     $Win32_ComputerSystem = Get-WmiObject -Class 'Win32_ComputerSystem' -ComputerName $FQDN
     RETURN $([math]::round($Win32_ComputerSystem.TotalPhysicalMemory/1024/1024/1024, 0))
-
-}
-
-FUNCTION Get-ImageDate {
-
-    PARAM(
-        [string]$FQDN
-    )
-
-    $Win32_OperatingSystem = Get-WmiObject -Class 'Win32_OperatingSystem' -ComputerName $FQDN
-    RETURN $([System.Management.ManagementDateTimeConverter]::ToDateTime($Win32_OperatingSystem.InstallDate)) 
 
 }
 
