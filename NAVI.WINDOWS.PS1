@@ -384,4 +384,4 @@ FUNCTION Get-SysInternals {
 #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Start\HideShutDown" -Name "value" -Value 1
 
 Clear-Host
-Write-Host -Object 'Hello World!'
+Write-Host -Object 'NAVI.WINDOWS.PS1 was imported!'
