@@ -183,8 +183,16 @@ FUNCTION Execute-CFIND {
         [string]$Port = $Null
     )
 
+    <#
+    $StudyAccession = '8229081'
+    $SCUAET = 'FREDTEST'
+    $Port = 5000
+    $IP = '162.3.39.5'
+    $SCPAET = 'UMWH01SLMDB1'
+    #>
+
     $Counter = [int]0
-    $Command = "$($Navi.CFIND) $(Assemble-Command -SCPAET $SCPAET -SCUAET $SCUAET -Level $Level -StudyUID $StudyUID -StudyDate $StudyDate -StudyAccession $StudyAccession -SeriesModality $SeriesModality -StudyModalities $StudyModalities -StudyDescription $StudyDescription -PatientName $PatientName -PatientMRN $PatientMRN -PatientIssuer $PatientIssuer -PatientDOB $PatientDOB -PatientSex $PatientSex -IP $IP -Port $Port)"
+    $Command = "$($DCMTK.CFIND) $(Assemble-Command -SCPAET $SCPAET -SCUAET $SCUAET -Level $Level -StudyUID $StudyUID -StudyDate $StudyDate -StudyAccession $StudyAccession -SeriesModality $SeriesModality -StudyModalities $StudyModalities -StudyDescription $StudyDescription -PatientName $PatientName -PatientMRN $PatientMRN -PatientIssuer $PatientIssuer -PatientDOB $PatientDOB -PatientSex $PatientSex -IP $IP -Port $Port)"
     $Command
     $ReturnCollection = Invoke-Expression -Command $Command
     $ReturnCollection
@@ -262,11 +270,13 @@ FUNCTION Execute-CFIND {
 				'0010,0040'{   
                     $Study.PatientSex = [string]$($Line.Split('[]')[1])   
 					; Break   
-				}   
+				}
+                <#
 				'0020,1209'{   
                     $Study.SeriesInstances = [string]$($Line.Split('[]')[1])   
                     ; Break   
 				}
+                #>
 				'0020,000D'{   
                     $Study.StudyUID = [string]$($Line.Split('[]')[1])   
                     ; Break   
